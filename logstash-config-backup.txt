@@ -1,0 +1,174 @@
+input { 
+  file { 
+    path => "D:/elasticdb/classified-ads-for-cars/all_anonymized_2015_11_2017_03.csv" 
+	start_position => "beginning"
+	sincedb_path => "D:/elasticdb/classified-ads-for-cars/null"
+  } 
+}
+
+filter {
+  csv {
+    separator => ","
+	columns => ["maker","model","mileage","manufacture_year","engine_displacement","engine_power","body_type","color_slug","stk_year","transmission","door_count","seat_count","fuel_type","date_created","date_last_seen","price_eur"]
+      }
+    mutate{convert =>["mileage","integer"]}	  
+	mutate{convert =>["price_eur","float"]}	  
+    mutate{convert =>["engine_power","integer"]}	  
+	mutate{convert =>["door_count","integer"]}	  
+	mutate{convert =>["seat_count","integer"]}	  
+		
+}
+
+output {
+  elasticsearch { hosts => ["localhost"] 
+  index => "logs"
+  "document_type" => "sold_cars"}
+  stdout{}
+}
+
+
+//json string
+
+input 
+{
+    file 
+    {
+	  codec => multiline
+        {
+            pattern => '^\{'
+            negate => true
+            what => previous                
+        }
+        path => "D:\elasticdb\logstash-tutorial.log\Test.txt"
+        start_position => "beginning"
+		type => "json"
+        sincedb_path => "D:\elasticdb\logstash-tutorial.log\null"
+        exclude => "*.gz"
+    }
+}
+
+filter 
+{
+    mutate
+    {
+        replace => [ "message", "%{message}" ]
+        gsub => [ 'message','\n','']
+    }
+    if [message] =~ /^{.*}$/
+    {
+        json {
+		   source => message
+           skip_on_invalid_json => true
+		}
+    }
+
+}
+
+output
+{  
+    stdout { codec => rubydebug }
+}
+
+
+
+//json final without , seperated
+
+input 
+{
+    file 
+    {
+	   codec => multiline
+        {
+            pattern => '^\{'
+            negate => true
+            what => previous                
+        }
+        path => "D:\elasticdb\logstash-tutorial.log\Test.txt"
+        start_position => "beginning"		
+        sincedb_path => "D:\elasticdb\logstash-tutorial.log\null"
+        exclude => "*.gz"
+    }
+}
+
+filter {
+json {
+source => "message"
+remove_field => ["path","@timestamp","@version","host","message"]
+}
+}
+
+output {
+  elasticsearch { hosts => ["localhost"] 
+  index => "logs"
+  "document_type" => "json_from_logstash_attempt3"
+  }
+  stdout{}
+}
+
+
+//failed config
+
+
+input 
+{
+    file 
+    {
+	   codec => multiline
+        {
+            pattern => '^\{'
+            negate => true
+            what => previous                
+        }
+        path => "D:\elasticdb\test2\test2.txt"
+        start_position => "beginning"		
+        sincedb_path => "D:\elasticdb\Events-json\null"
+        exclude => "*.gz"
+    }
+}
+
+filter {
+json {
+source => "message"
+remove_field => ["path","@timestamp","@version","host","message"] 
+}
+
+geoip {
+      source => "clientip"
+      target => "geoip"
+	   database => "C:\Users\vishnu\Downloads\GeoLiteCityv6.dat\GeoLiteCityv6.dat"
+      add_field => [ "[geoip][coordinates]", "%{[geoip][longitude]}" ]
+      add_field => [ "[geoip][coordinates]", "%{[geoip][latitude]}"  ]
+    }
+	
+	 mutate {	
+     add_field => { "token" => "PgtxfjeHgMHXJsCNjzGSUcKsZHkLNeVn" }
+    }  
+	
+	
+	
+	
+}
+
+output {
+   elasticsearch { hosts => ["localhost"] 
+  index => "GeoIpTrack"
+  "document_type" => "ip-learning"
+  }
+
+  stdout{}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

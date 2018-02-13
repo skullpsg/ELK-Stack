@@ -1,0 +1,30 @@
+http://127.0.0.1:9200/_cat/indices
+
+//querrying across index(db)
+http://127.0.0.1:9200/logs/_search?pretty=true&q=*:*
+
+//querrying mappings(schema)
+http://127.0.0.1:9200/logs/_mapping
+
+//sample index post
+http://127.0.0.1:9200/logs/indexsample1
+{"timestamp": "2015-01-18 12:34:56", "message": "User logged in", "user_id": 4, "admin": false}
+
+// delete all 
+http://127.0.0.1:9200/_all
+
+cd D:\elasticdb\logstash-5.6.3\logstash-5.6.3\bin
+logstash -f logstash.conf
+logstash --debug --debug-config -t -f logstash.conf
+
+logstash-plugin install logstash-filter-json
+
+cd D:\elasticdb\filebeat-5.6.3-windows-x86\filebeat-5.6.3-windows-x86
+
+https://stackoverflow.com/questions/41751605/running-filebeat-in-windows
+
+
+kibana url:
+http://localhost:5601/
+,{"name":"FWPktFilt","ID":"20008","TS":"1351145569","DIR":"I","ALW":"0","RUL":"131074","PRE":"8","PRI":"6","IPL":"192.168.204.128","IPR":"192.168.204.1","PTL":"445","PTR":"1258","FLG":"24"},
+{"name":"FWPktFilt","ID":"20008","TS":"1351145569","DIR":"I","ALW":"0","RUL":"131074","PRE":"8","PRI":"6","IPL":"192.168.204.128","IPR":"192.168.204.1","PTL":"445","PTR":"1258","FLG":"24"}
